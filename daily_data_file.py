@@ -9,7 +9,7 @@ base_url = "https://www.iqair.com"
 
 # Define headers to avoid getting blocked
 headers = {
-    "User-Agent": "MyBot/1.0 (https://example.com; contact@example.com)"
+    "User-Agent": "MyBot/1.1 (https://example.com; contact@example.com)"
 }
 
 # Get the main Sri Lanka page to extract province links
