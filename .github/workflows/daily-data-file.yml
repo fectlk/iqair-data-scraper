@@ -44,4 +44,4 @@ jobs:
           git config --global user.email "noreply@github.com"
           git add charts/*
           git diff --cached --quiet || git commit -m "Add newly generated chart"
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref }}
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/fectlk/iqair-data-scraper.git main
