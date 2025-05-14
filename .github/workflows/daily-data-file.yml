@@ -2,8 +2,11 @@ name: Daily Data Files
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Every 5 minutes, including start of the hour
+    - cron: '*/15 * * * *'  # Every 15 minutes, including start of the hour
   workflow_dispatch:  # Allows manual triggering
+
+permissions:
+  contents: write
 
 jobs:
   generate-files:
@@ -44,4 +47,5 @@ jobs:
           git config --global user.email "noreply@github.com"
           git add charts/*
           git diff --cached --quiet || git commit -m "Add newly generated chart"
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/fectlk/iqair-data-scraper.git main
+          git pull --rebase
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/fectlk/iqair-data-scraper.git main
