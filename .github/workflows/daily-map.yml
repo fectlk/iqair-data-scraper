@@ -1,0 +1,50 @@
+name: Daily AQI Maps
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes, including start of the hour
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  generate-files:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Colombo  # Set timezone to Sri Lanka
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      # Clear pip cache
+      - name: Clear pip cache
+        run: pip cache purge
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+
+      # Generate map file
+      - name: Generate all stations map file
+        run: |
+          python all_stations_map.py
+
+      # Commit generated files
+      - name: Commit generated files
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name "iamdulanga"
+          git config --global user.email "dulanganiroshan721@gmail.com"
+          git add all_stations_maps/*
+          git diff --cached --quiet || git commit -m "Add newly generated map"
+          git pull --rebase
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref }}
