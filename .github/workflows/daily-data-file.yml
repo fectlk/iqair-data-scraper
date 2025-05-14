@@ -40,8 +40,8 @@ jobs:
       # Commit generated files
       - name: Commit generated files
         run: |
-          git config --global user.name "iamdulanga"
-          git config --global user.email "dulanganiroshan721@gmail.com"
+          git config --global user.name "OrgBot"
+          git config --global user.email "noreply@github.com"
           git add charts/*
           git diff --cached --quiet || git commit -m "Add newly generated chart"
           git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref }}
