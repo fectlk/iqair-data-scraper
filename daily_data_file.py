@@ -50,18 +50,16 @@ if response.status_code == 200:
                     province_data = []  # Store all cities in this province
 
                     for station in station_list.find_all('li', class_='location-item'):
-                        city = station.find(
-                            'span', class_='location-item__name').text.strip()
-                        aqi_text = station.find(
-                            'span', class_='location-item__value').text.strip()
+                        city_tag = station.find('span', class_='location-item__name')
+                        aqi_tag = station.find('span', class_='location-item__value')
 
-                        # Handle empty AQI values gracefully
+                        city = city_tag.text.strip() if city_tag and city_tag.text else "Unknown"
+                        aqi_text = aqi_tag.text.strip() if aqi_tag and aqi_tag.text else ""
+
                         aqi = int(aqi_text) if aqi_text.isdigit() else None
 
-                        # Append to overall data if AQI is valid
                         if aqi is not None:
-                            all_cities.append(
-                                {"Province": province, "City": city, "AQI": aqi})
+                            all_cities.append({"Province": province, "City": city, "AQI": aqi})
                             province_data.append((city, aqi))
 
                     # Get the most polluted city in this province
