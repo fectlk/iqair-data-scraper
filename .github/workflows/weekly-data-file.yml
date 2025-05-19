@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -40,7 +40,7 @@ jobs:
           if [ -n "$(git status --porcelain weekly_charts/)" ]; then
             git add weekly_charts/*.xlsx
             git commit -m "📊 Weekly AQI Report: committed by GitHub Actions on $(date +'%Y-%m-%d')"
-            git push
+            git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
           else
             echo "⚠️ No new or modified files to commit."
           fi
