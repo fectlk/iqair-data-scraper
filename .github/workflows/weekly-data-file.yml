@@ -34,13 +34,14 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
+      
           git pull origin ${{ github.ref_name }}
-
+      
           if [ -n "$(git status --porcelain weekly_charts/)" ]; then
             git add weekly_charts/*.xlsx
             git commit -m "📊 Weekly AQI Report: committed by GitHub Actions on $(date +'%Y-%m-%d')"
-            git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
+            git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
           else
             echo "⚠️ No new or modified files to commit."
           fi
+
