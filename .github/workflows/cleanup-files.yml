@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  cleanup-old-files:
+  cleanup:
     runs-on: ubuntu-latest
     env:
       TZ: Asia/Colombo
@@ -17,36 +17,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
-      - name: Cleanup old AQI files
+      - name: Delete oldest files if over 300
         run: |
           for folder in charts all_stations_maps; do
-            safe_limit=600      # Start deleting after 600 files
-            keep_recent=300     # Keep this many newest files
+            count=$(ls "$folder" | wc -l)
+            echo "File count in $folder is $count."
 
-            file_count=$(find "$folder" -type f | wc -l)
-            echo "File count in $folder is $file_count."
-
-            if [ "$file_count" -gt "$safe_limit" ]; then
-              delete_count=$((file_count - keep_recent))
-              echo "Deleting $delete_count oldest files from $folder..."
-
-              find "$folder" -type f -printf '%T@ %p\n' | sort -n | head -n "$delete_count" | cut -d' ' -f2- | while read -r file; do
-                rm -f "$file"
-              done
-            else
-              echo "No cleanup needed in $folder."
+            if [ "$count" -gt 300 ]; then
+              remove_count=$((count - 300))
+              echo "Deleting $remove_count oldest files from $folder..."
+              ls -tp "$folder" | grep -v '/$' | tail -n +$((300+1)) | xargs -I {} rm -- "$folder/{}"
             fi
           done
 
-      - name: Commit and push cleanup changes
+      - name: Commit and push deletions
+        run: |
+          git config --global user.email "orgbot@users.noreply.github.com"
+          git config --global user.name "OrgBot"
+          git add -A
+          git commit -m "chore: delete oldest files from charts and all_stations_maps" || echo "No changes to commit"
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --global user.name "OrgBot"
-          git config --global user.email "noreply@github.com"
-          git add charts/* all_stations_maps/*
-          git diff --cached --quiet || git commit -m "Cleanup: remove old AQI files"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref }}
