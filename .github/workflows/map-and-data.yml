@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  generate-nightly-aqi-assets:
+  generate-aqimap-and-datafile:
     runs-on: ubuntu-latest
     env:
       TZ: Asia/Colombo
@@ -43,21 +43,6 @@ jobs:
 
       - name: Generate daily data file
         run: python daily_data_file.py
-
-      - name: Clean up files beyond 2-week retention
-        run: |
-          for folder in charts all_stations_maps; do
-            safe_limit=700      # When to trigger deletion
-            keep_recent=300     # Always keep this many most recent files
-
-            file_count=$(find "$folder" -type f | wc -l)
-            if [ "$file_count" -gt "$safe_limit" ]; then
-              echo "File count in $folder is $file_count. Removing oldest $((file_count - keep_recent)) files..."
-              find "$folder" -type f -printf '%T@ %p\n' | sort -n | head -n $((file_count - keep_recent)) | cut -d' ' -f2- | xargs -d '\n' rm -f
-            else
-              echo "File count in $folder is $file_count, no cleanup needed."
-            fi
-          done
 
       - name: Commit and push generated files
         env:
