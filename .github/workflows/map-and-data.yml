@@ -2,7 +2,7 @@ name: AQI Charts and Maps
 
 on:
   schedule:
-    - cron: '0,15,16,30,31,45,46 23,0,1,2,3,4,5,6 * * *'  # Merged both timings
+    - cron: '0,30 23,0,1,2,3,4,5,6 * * *'
   workflow_dispatch:
 
 permissions:
@@ -43,6 +43,21 @@ jobs:
 
       - name: Generate daily data file
         run: python daily_data_file.py
+
+      - name: Clean up files beyond 2-week retention
+        run: |
+          for folder in charts all_stations_maps; do
+            safe_limit=600      # When to trigger deletion
+            keep_recent=300     # Always keep this many most recent files
+
+            file_count=$(find "$folder" -type f | wc -l)
+            if [ "$file_count" -gt "$safe_limit" ]; then
+              echo "File count in $folder is $file_count. Removing oldest $((file_count - keep_recent)) files..."
+              find "$folder" -type f -printf '%T@ %p\n' | sort -n | head -n $((file_count - keep_recent)) | cut -d' ' -f2- | xargs -d '\n' rm -f
+            else
+              echo "File count in $folder is $file_count, no cleanup needed."
+            fi
+          done
 
       - name: Commit and push generated files
         env:
