@@ -47,7 +47,7 @@ jobs:
       - name: Clean up files beyond 2-week retention
         run: |
           for folder in charts all_stations_maps; do
-            safe_limit=600      # When to trigger deletion
+            safe_limit=700      # When to trigger deletion
             keep_recent=300     # Always keep this many most recent files
 
             file_count=$(find "$folder" -type f | wc -l)
